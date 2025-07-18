@@ -9,6 +9,8 @@ from time import time
 import pandas as pd
 from sqlalchemy import create_engine
 
+# in the video he makes this file; in this example the py script is ready to run here already 
+# we just have to run this in command line python ingest_data.py then all parameters below
 
 def main(params):
     user = params.user
@@ -18,7 +20,8 @@ def main(params):
     db = params.db
     table_name = params.table_name
     url = params.url
-    
+    # this is the parameters for postgres access and also download acess
+
     # the backup files are gzipped, and it's important to keep the correct extension
     # for pandas to be able to open the file
     if url.endswith('.csv.gz'):
@@ -27,20 +30,20 @@ def main(params):
         csv_name = 'output.csv'
 
     os.system(f"wget {url} -O {csv_name}")
-
+    #Create engine for postgres
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
-
+    # loading data in chunks instead of all at once
     df_iter = pd.read_csv(csv_name, iterator=True, chunksize=100000)
 
     df = next(df_iter)
 
     df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
     df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
-
+    # just inputting col names
     df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
 
     df.to_sql(name=table_name, con=engine, if_exists='append')
-
+    #append by chunk;
 
     while True: 
 
