@@ -11,4 +11,4 @@ RUN pip install pandas sqlalchemy psycopg2
 WORKDIR /app
 COPY pipeline.py pipeline.py
 
-ENTRYPOINT [ "python" ] 
+ENTRYPOINT [ "python" , "pipeline.py" ] 
